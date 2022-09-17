@@ -67,7 +67,7 @@ a:visited {
 }
 
 /* Sorting and delete all buttons */
-.sort__delete__btns{
+.sort__delete__btns {
   background-color: var(--color-dark--2);
   border-radius: 5px;
   margin-bottom: 1.75rem;
@@ -77,27 +77,31 @@ a:visited {
   justify-content: space-between;
 }
 
-.sort__delete__btns select{
-  background-color:var(--color-light--1);
+.sort__delete__btns select {
+  background-color: var(--color-light--1);
   color: var(--color-dark--1);
 }
-.sort__delete__btns select option{
+
+.sort__delete__btns select option {
   font-size: 2rem;
 }
-.sort__delete__btns button{
+
+.sort__delete__btns button {
   padding: 0.5rem;
   border-radius: 5px;
   border: none;
-  background-color:var(--color-light--1);
+  background-color: var(--color-light--1);
   color: var(--color-dark--1);
   cursor: pointer;
 }
-.sort__delete__btns button:hover{
-  background-color:var(--color-dark--2);
+
+.sort__delete__btns button:hover {
+  background-color: var(--color-dark--2);
   color: var(--color-light--2);
 }
-.sort__delete__btns button:hover{
-  background-color:var(--color-dark--1);
+
+.sort__delete__btns button:hover {
+  background-color: var(--color-dark--1);
   color: var(--color-light--1);
 }
 
@@ -112,9 +116,11 @@ a:visited {
   grid-template-columns: 1fr 1fr 1fr 1fr;
   gap: 0.75rem 1.5rem;
 }
+
 .workout--running {
   border-left: 5px solid var(--color-brand--2);
 }
+
 .workout--cycling {
   border-left: 5px solid var(--color-brand--1);
 }
@@ -124,7 +130,8 @@ a:visited {
   font-weight: 600;
   grid-column: 1 / -2;
 }
-.edit__btns{
+
+.edit__btns {
   display: flex;
   justify-content: right;
   align-items: center;
@@ -132,21 +139,23 @@ a:visited {
 }
 
 /* Extra Function: edit & delete */
-.edit__btns button{
+.edit__btns button {
   width: 2.5rem;
   height: 2.5rem;
   border-radius: 50%;
   border: none;
-  background-color:var(--color-light--1);
+  background-color: var(--color-light--1);
   color: var(--color-dark--1);
   cursor: pointer;
 }
-.edit__btns button:hover{
-  background-color:var(--color-dark--2);
+
+.edit__btns button:hover {
+  background-color: var(--color-dark--2);
   color: var(--color-light--2);
 }
-.edit__btns button:hover{
-  background-color:var(--color-dark--1);
+
+.edit__btns button:hover {
+  background-color: var(--color-dark--1);
   color: var(--color-light--1);
 }
 
@@ -276,6 +285,7 @@ a:visited {
 .running-popup .leaflet-popup-content-wrapper {
   border-left: 5px solid var(--color-brand--2);
 }
+
 .cycling-popup .leaflet-popup-content-wrapper {
   border-left: 5px solid var(--color-brand--1);
 }
