@@ -67,7 +67,7 @@ a:visited {
 }
 
 /* Sorting and delete all buttons */
-.sort__delete__btns {
+.edit__panel {
   background-color: var(--color-dark--2);
   border-radius: 5px;
   margin-bottom: 1.75rem;
@@ -77,16 +77,16 @@ a:visited {
   justify-content: space-between;
 }
 
-.sort__delete__btns select {
+.edit__panel select {
   background-color: var(--color-light--1);
   color: var(--color-dark--1);
 }
 
-.sort__delete__btns select option {
+.edit__panel select option {
   font-size: 2rem;
 }
 
-.sort__delete__btns button {
+.edit__panel button {
   padding: 0.5rem;
   border-radius: 5px;
   border: none;
@@ -95,12 +95,12 @@ a:visited {
   cursor: pointer;
 }
 
-.sort__delete__btns button:hover {
+.edit__panel button:hover {
   background-color: var(--color-dark--2);
   color: var(--color-light--2);
 }
 
-.sort__delete__btns button:hover {
+.edit__panel button:hover {
   background-color: var(--color-dark--1);
   color: var(--color-light--1);
 }
@@ -140,8 +140,8 @@ a:visited {
 
 /* Extra Function: edit & delete */
 .edit__btns button {
-  width: 2.5rem;
-  height: 2.5rem;
+  width: 2rem;
+  height: 2rem;
   border-radius: 50%;
   border: none;
   background-color: var(--color-light--1);
@@ -289,4 +289,9 @@ a:visited {
 
 .cycling-popup .leaflet-popup-content-wrapper {
   border-left: 5px solid var(--color-brand--1);
+}
+
+.edit__btn {
+  transform: rotate(30deg);
+  font-weight: bold;
 }
