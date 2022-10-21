@@ -1,7 +1,6 @@
 "use strict";
-import { Workout, Running, Cycling } from "./Wortkout.js";
-// const run = new Running([39, -12], 12, 100, 500);
-// console.log(run);
+import { Running, Cycling } from "./Wortkout.js";
+
 ///////////////////////////////////////////////////////////
 // APPLICATION ARCHITECTURE
 const form = document.querySelector(".form");
@@ -23,7 +22,10 @@ const inputElevation = document.querySelector(".form__input--elevation");
 const editPanel = document.querySelector(".edit__panel");
 const deleteAllBtn = document.querySelector(".delete__all__btn");
 const sortSelect = document.querySelector("#sort__workout");
-
+const defaultLocation = {
+  latitude: 22.311490382666655,
+  longitude: 114.16837692260744,
+};
 class App {
   // private variables
   #map;
@@ -51,27 +53,23 @@ class App {
     sortSelect.addEventListener("change", this._sortWorkouts.bind(this));
     deleteAllBtn.addEventListener("click", this._deleteAll.bind(this));
     editForm.addEventListener("submit", this._updateWorkout.bind(this));
-
-    // containerWorkouts.addEventListener("click", this._deleteWorkout.bind(this));
   }
   //TODO Async Load
   _getPosition() {
     if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        this._loadMap.bind(this),
-        function () {
-          alert(
-            "Cannot Get Current Location, please grant location permisson and reload the page!"
-          );
-        }
-      );
+      navigator.geolocation.getCurrentPosition(this._loadMap.bind(this), () => {
+        alert(
+          "Cannot get user location. Please grant permission for getting user location and reload the page. \n\nSetting map location to default location (Hong Kong)."
+        );
+        this._loadMap(null);
+      });
     }
   }
 
-  _loadMap(position) {
-    const { latitude } = position.coords;
-    const { longitude } = position.coords;
-
+  async _loadMap(position) {
+    const { latitude, longitude } = position
+      ? position.coords
+      : defaultLocation;
     const coords = [latitude, longitude];
     // leaflet library to display current location
     this.#map = L.map("map").setView(coords, this.#zoomLevel);
@@ -288,7 +286,6 @@ class App {
       });
     } else {
       // display sorted
-      console.log(sortOption);
       sortSelect.value = sortOption;
       this._sortWorkouts();
     }
@@ -365,27 +362,24 @@ class App {
   _objectToWorkout(data) {
     let workout;
     // self-initiated funtion 2. convert object array to workout array
-    console.log(data);
-    data.forEach((object) => {
-      object.type === "running"
-        ? (workout = new Running(
-            object.coords,
-            object.distance,
-            object.duration,
-            object.cadence
-          ))
-        : (workout = new Cycling(
-            object.coords,
-            object.distance,
-            object.duration,
-            object.elevationGain
-          ));
-      // Correct date and id
+    this.#workouts = data.map((object) => {
+      const workout =
+        object.type === "running"
+          ? new Running(
+              object.coords,
+              object.distance,
+              object.duration,
+              object.cadence
+            )
+          : new Cycling(
+              object.coords,
+              object.distance,
+              object.duration,
+              object.elevationGain
+            );
       workout.setDate(object.date);
       workout.setId(object.id);
-      // Update Description to the new Date and id
-      workout.updateDescription();
-      this.#workouts.push(workout);
+      return workout;
     });
   }
   ////////////////////////////////////////////////////////////////////////

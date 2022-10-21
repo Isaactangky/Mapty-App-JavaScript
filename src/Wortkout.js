@@ -21,12 +21,10 @@ export class Workout {
   // extra functions
   setDate(date) {
     this.date = new Date(date);
+    this._setDescription();
   }
   setId(id) {
     this.id = id;
-  }
-  updateDescription() {
-    this._setDescription();
   }
 }
 export class Running extends Workout {

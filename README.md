@@ -1,26 +1,12 @@
-# JavaScript Course - Mapty App
+# Mapty App - JavaScript OOP Project
 
-This is a solution to the [Space tourism website challenge on Frontend Mentor](https://www.frontendmentor.io/challenges/space-tourism-multipage-website-gRWj1URZ3). Frontend Mentor challenges help you improve your coding skills by building realistic projects.
+This is a project "Mapty" of [JavaScript Course by Jonas Schmedtmann](https://www.udemy.com/course/the-complete-javascript-course/). This course solidifies my understanding on different JavaScript concepts (e.g. DOM, Mordern OOP, Asynchronous JS and Modern tools for JS) and offer me challenging exercises and realistic projects to improve my coding skills.
 
-This is a project "Mapty" of [JavaScript Course by Jonas Schmedtmann](https://www.udemy.com/course/the-complete-javascript-course/). This course solidify my understanding on different JavaScript concepts (e.g. DOM, Mordern OOP, Asynchronous JS and Modern tools for JS) and offer me challenging exercises and realistic projects to improve my coding skills.
+"Mapty" is a code-alone project to work on OOP, JS Classes, DOM, Geolocation, External Library "Leaflet" and project planning.
 
-"Mapty" is a code-alone project to practice OOP, JS Classes, DOM, Geolocation, External Library "Leaflet" and project planning. I also add serveral functions by myself to solidify the learning and improve the functionality of the app. The appllication incorporate map, a user can use the map to keep track of their exercise records, and edit and navigate their exercise history.
+In addition to the functions coded during the course, I also add serveral functions by myself to reinforce the learning and improve the functionality of the app. The appllication incorporate map, a user can use the map to keep track of their exercise records, and edit and navigate their exercise history.
 
-## Table of contents
-
-- [Overview](#overview)
-  - [The challenge](#the-challenge)
-  - [Screenshot](#screenshot)
-  - [Links](#links)
-- [My process](#my-process)
-  - [Built with](#built-with)
-  - [What I learned](#what-i-learned)
-  - [Continued development](#continued-development)
-  - [Useful resources](#useful-resources)
-- [Author](#author)
-- [Acknowledgments](#acknowledgments)
-
-**Note: Delete this note and update the table of contents based on what sections you keep.**
+![image](Screenshot-mapty.png?raw=true)
 
 ## Overview
 
@@ -28,13 +14,18 @@ This is a project "Mapty" of [JavaScript Course by Jonas Schmedtmann](https://ww
 
 Users should be able to:
 
-- Search for recipe and view the results on Pagination area
-- Navigate the search results and view results in pages
-- View a recipe in the Recipe area when they click on a preview in the Pagination area
-- Change servings of the menu and view immediate change in the quantity of ingredient
-- Bookmark recipes and view bookmarked recipes in the Bookmark view
-- Upload user-generated recipes to the API
-- Load bookmarks and user-generated recipes when they reload the page
+- View the map capturing a user's current location and their workout records when visisting the page
+- See add-workout form when clicking a place on the map
+- Change input options when selecting a different workout type
+- add a new item to the list and its markup to the map by submiting the form
+- See the map move to the markup when clicking a workout on the list
+
+Addtional functions I added:
+
+- Delete a workout and its markup
+- Deleting all workouts and all markups
+- Show edit-workout form when the edit button is click, the information of the workout will be updated after submitting the form
+- Sort workouts on the list
 
 ### Screenshot
 
@@ -50,26 +41,52 @@ Then crop/optimize/edit your image however you like, add it to your project, and
 
 ### Links
 
-- Live Site URL: [Forkify Netlify](https://forkify-isaactangky.netlify.app/)
+- Live: [Mapty](https://mapty-isaactangky.netlify.app/)
 
 ## My process
 
 ### Built with
 
-- AJAX, fetch API
-- DOM Manipulation
-- Error handling and error message rendering
-- Model-View-Controller Architecture
+- CSS
+- DOM Manipultion
 - OOP
-- Publisher/Subcriber Pattern
-- [Fracty](https://www.npmjs.com/package/fracty) - npm
-- [Parcel](https://parceljs.org/)
+- Geolocation API
+- [Leaflet Library](https://leafletjs.com/)
 
-### What I learned
+### Build Process for self-initiated features
+
+#### Rebuilding Workout objects from localStorage data
+
+JSON.parse(data) function parses the data to an unstructured JS Object, a function was coded to rebuild a Workout object:
+
+```js
+_objectToWorkout(data) {
+    let workout;
+    // self-initiated funtion 2. convert object array to workout array
+    console.log(data);
+    data.forEach((object) => {
+      object.type === "running"
+        ? (workout = new Running(
+            object.coords,
+            object.distance,
+            object.duration,
+            object.cadence
+          ))
+        : (workout = new Cycling(
+            object.coords,
+            object.distance,
+            object.duration,
+            object.elevationGain
+          ));
+      // Correct date and id
+      workout.setDate(object.date);
+      workout.setId(object.id);
+      this.#workouts.push(workout);
+    });
+  }
+```
 
 The **MVC architecture** is the most important concept I learned in the project. I was amazed by how this help to clearify the structure of the projects. From my understanding, model helps to deal with the business logic and state, Controller calls the actual functions and View components accept user input and render information to the user. This architecture help to increase the maintainability and expandibility of the codes. I look forward to exploring more on this architecture and other architecture concepts.
-
-The **Publish-subcribe pattern** is a useful solution to add EventListener to views. Under the MVC architecture, the eventListener should be added in the View component, and corresponding callback functions are defined in Controller. Since the handler should not be defined in the View, we define funtions to accept handlers from contraller:
 
 ```js
 addHandlerSearch(handler) {
@@ -140,8 +157,4 @@ Use this section to outline areas that you want to continue focusing on in futur
 
 ## Acknowledgments
 
-All html and CSS designs are credited to Jonas Schmedtmann.
-
-This is where you can give a hat tip to anyone who helped you out on this project. Perhaps you worked in a team or got some inspiration from someone else's solution. This is the perfect place to give them some credit.
-
-**Note: Delete this note and edit this section's content as necessary. If you completed this challenge by yourself, feel free to delete this section entirely.**
+Most of the html and CSS designs are credited to Jonas Schmedtmann.
