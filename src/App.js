@@ -1,5 +1,10 @@
 "use strict";
 import { Running, Cycling } from "./Wortkout.js";
+import {
+  objectToWorkout,
+  copyAndSortWorkouts,
+  validInputs,
+} from "./helpers.js";
 
 ///////////////////////////////////////////////////////////
 // APPLICATION ARCHITECTURE
@@ -26,6 +31,7 @@ const defaultLocation = {
   latitude: 22.311490382666655,
   longitude: 114.16837692260744,
 };
+
 class App {
   // private variables
   #map;
@@ -109,10 +115,6 @@ class App {
   }
 
   _newWorkout(e) {
-    const validInputs = (...inputs) =>
-      inputs.every((num) => Number.isFinite(num));
-    const allPositive = (...inputs) => inputs.every((num) => num > 0);
-
     e.preventDefault();
 
     // creating new workout
@@ -127,30 +129,15 @@ class App {
     if (type === "running") {
       // data validation
       const cadence = +inputCadence.value;
-      if (
-        // !Number.isFinite(distance) ||
-        // !Number.isFinite(duration) ||
-        // !Number.isFinite(cadence)
-        !validInputs(distance, duration, cadence) ||
-        !allPositive(distance, duration, cadence)
-      ) {
-        return alert("Input has to be positive number");
-      }
+      if (!validInputs(distance, duration, cadence)) return;
+
       workout = new Running([lat, lng], distance, duration, cadence);
     }
     // 3. If type is cycling, create Cycling object
     if (type === "cycling") {
       // data validation
       const elevation = +inputElevation.value;
-      if (
-        // !Number.isFinite(distance) ||
-        // !Number.isFinite(duration) ||
-        // !Number.isFinite(elevation)
-        !validInputs(distance, duration, elevation) ||
-        !allPositive(distance, duration) // elevation can be negative
-      ) {
-        return alert("Input has to be positive number");
-      }
+      if (!validInputs(distance, duration, elevation)) return;
       workout = new Cycling([lat, lng], distance, duration, elevation);
     }
     // 4. Add new object to the workout array
@@ -185,15 +172,14 @@ class App {
       .openPopup();
   }
   _deleteWorkoutMarker(workout) {
-    // TODO integer comparision
-    const marker = this.#markers.find(
+    const index = this.#markers.findIndex(
       (m) =>
         m._latlng.lat === workout.coords[0] &&
         m._latlng.lng === workout.coords[1]
     );
-    const index = this.#markers.indexOf(marker);
-    this.#markers.splice(index, 1);
+    const marker = this.#markers[index];
     this.#map.removeLayer(marker);
+    this.#markers.splice(index, 1);
   }
   _renderWorkout(workout, render = true) {
     let html = `
@@ -274,8 +260,7 @@ class App {
     if (!data) return;
     // convert object array from localStorage to Workout array
 
-    this._objectToWorkout(data);
-
+    this.#workouts = objectToWorkout(data);
     // this.#workouts = data; data is an object array, not Workout array
     // render Workouts
     const sortOption = localStorage.getItem("sort");
@@ -312,24 +297,8 @@ class App {
   }
 
   _sortWorkouts() {
-    const criteria = sortSelect.value;
-    const workoutsCopy = this.#workouts.slice(0);
-    switch (criteria) {
-      case "duration":
-      case "distance":
-        workoutsCopy.sort(
-          (a, b) => parseFloat(a[criteria]) - parseInt(b[criteria])
-        );
-        break;
-      case "date":
-        workoutsCopy.sort(
-          (a, b) => new Date(a[criteria]) - new Date(b[criteria])
-        );
-        break;
-      case "type":
-        workoutsCopy.sort((a, b) => (a.type > b.type ? 1 : -1));
-        break;
-    }
+    const workoutsCopy = copyAndSortWorkouts(sortSelect.value, this.#workouts);
+
     this._clearWorkoutElements();
     workoutsCopy.forEach((workout) => {
       this._renderWorkout(workout);
@@ -344,12 +313,12 @@ class App {
     if (!e.target.classList.contains("delete__btn")) return;
 
     const workoutEl = e.target.closest(".workout");
-    const workout = this.#workouts.find(
-      (ele) => ele.id === workoutEl.dataset.id
+    const deletingWorkout = this.#workouts.find(
+      (workout) => workout.id === workoutEl.dataset.id
     );
-    const index = this.#workouts.indexOf(workout);
+    const index = this.#workouts.indexOf(deletingWorkout);
     // remove markup
-    this._deleteWorkoutMarker(workout);
+    this._deleteWorkoutMarker(deletingWorkout);
     // delete it from #workouts, remove the ele and update localStorage
     this.#workouts.splice(index, 1);
     workoutEl.remove();
@@ -358,30 +327,7 @@ class App {
   _deleteAll(e) {
     this.reset();
   }
-  // 2. convert Object array from localStorage to Workout array
-  _objectToWorkout(data) {
-    let workout;
-    // self-initiated funtion 2. convert object array to workout array
-    this.#workouts = data.map((object) => {
-      const workout =
-        object.type === "running"
-          ? new Running(
-              object.coords,
-              object.distance,
-              object.duration,
-              object.cadence
-            )
-          : new Cycling(
-              object.coords,
-              object.distance,
-              object.duration,
-              object.elevationGain
-            );
-      workout.setDate(object.date);
-      workout.setId(object.id);
-      return workout;
-    });
-  }
+
   ////////////////////////////////////////////////////////////////////////
   // Edit information of workouts
   _editWorkout(e) {
@@ -392,10 +338,10 @@ class App {
       (ele) => ele.id === workoutEl.dataset.id
     );
     editForm.classList.remove("hidden");
-    this._renderWorkoutInputs(workout);
+    this._populateFormInputs(workout);
     editForm.dataset.id = workout.id;
   }
-  _renderWorkoutInputs(workout) {
+  _populateFormInputs(workout) {
     editFormInputType.value = workout.type;
     editFormInputDistance.value = workout.distance;
     editFormInputDuration.value = workout.duration;
@@ -432,27 +378,33 @@ class App {
     const workoutId = editForm.dataset.id;
     const workout = this.#workouts.find((ele) => ele.id === workoutId);
     // update workout data from input values
-    workout.distance = +editFormInputDistance.value;
-    workout.duration = +editFormInputDuration.value;
+    const distance = +editFormInputDistance.value;
+    const duration = +editFormInputDuration.value;
+
     if (workout.type === "running") {
-      workout.cadence = editFormInputCadence.value;
+      const cadence = editFormInputCadence.value;
+      if (!validInputs(distance, duration, cadence)) return;
+      workout.cadence = cadence;
       workout.calcPace();
     }
     if (workout.type === "cycling") {
-      workout.elevationGain = +editFormInputElevation.value;
+      const elevationGain = +editFormInputElevation.value;
+      if (!validInputs(distance, duration, elevationGain)) return;
+      workout.elevationGain = elevationGain;
       workout.calcSpeed();
     }
+    workout.distance = distance;
+    workout.duration = duration;
     this._updateWorkoutDisplay(workout);
     editForm.classList.add("hidden");
     this._setLocalStorage();
   }
+
   _updateWorkoutDisplay(workout) {
     const workoutEl = Array.from(
       containerWorkouts.querySelectorAll("li.workout")
     ).find((ele) => ele.dataset.id === workout.id);
     const newMarkup = this._renderWorkout(workout, false);
-    // console.log(newMarkup);
-    // Update DOM Algorithm from Forkify App
     const newDOM = document.createRange().createContextualFragment(newMarkup);
     // Compare newDOM and currentDOM, update current elements if any changes
     const newElements = Array.from(newDOM.querySelectorAll("*")).slice(1); //excluding li
@@ -464,17 +416,8 @@ class App {
         !newEl.isEqualNode(curEl) &&
         newEl.firstChild?.nodeValue.trim() !== ""
       ) {
-        // console.log('💥', newEl.firstChild.nodeValue.trim());
-        // console.log(curEl);
-        // console.log(newEl);
         curEl.textContent = newEl.textContent;
       }
-
-      // Updates changed ATTRIBUES
-      // if (!newEl.isEqualNode(curEl))
-      //   Array.from(newEl.attributes).forEach(attr =>
-      //     curEl.setAttribute(attr.name, attr.value)
-      //   );
     });
   }
 }
